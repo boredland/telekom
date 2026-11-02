@@ -98,7 +98,7 @@ export interface ResultPage {
 	text: string;
 }
 
-const decodeEntities = (s: string) =>
+export const decodeEntities = (s: string) =>
 	s
 		.replace(/&#(\d+);/g, (_, n) => String.fromCodePoint(Number(n)))
 		.replace(/&#x([0-9a-f]+);/gi, (_, n) => String.fromCodePoint(parseInt(n, 16)))
@@ -108,7 +108,7 @@ const decodeEntities = (s: string) =>
 		.replace(/&nbsp;/g, " ")
 		.replace(/&amp;/g, "&");
 
-const stripTags = (html: string) =>
+export const stripTags = (html: string) =>
 	decodeEntities(html.replace(/<(script|style)\b[\s\S]*?<\/\1>/gi, " ").replace(/<[^>]+>/g, " "))
 		.replace(/\s+/g, " ")
 		.trim();

@@ -113,8 +113,41 @@ async function showLine(id) {
 				? [el("p", { class: "status-ok" }, "Keine Flächenstörung für diesen Anschluss bekannt.")]
 				: []),
 	);
-	await Promise.all([loadStats(id), refreshPushState()]);
+	$("national-open").replaceChildren(...data.national.map(nationalCard));
+	await Promise.all([loadStats(id), loadNational(), refreshPushState()]);
 	$("email-state").textContent = "";
+}
+
+// --- Nationwide (telekom.com Störungsübersicht) -----------------------------
+
+function nationalCard(n) {
+	return el(
+		"div",
+		{ class: "fault national" },
+		el("h3", {}, `Bundesweite Störung: ${n.service}`),
+		el("p", {}, n.description),
+		el("p", { class: "muted small" }, `seit ${dateTime.format(n.firstSeen)} · Quelle: Störungsübersicht der Telekom`),
+	);
+}
+
+async function loadNational() {
+	const { incidents } = await api("/national");
+	$("national-history").replaceChildren(
+		el("tr", {}, el("th", {}, "Dienst"), el("th", {}, "Beginn"), el("th", {}, "Ende"), el("th", {}, "Dauer"), el("th", {}, "Meldung")),
+		...(incidents.length
+			? incidents.map((n) =>
+					el(
+						"tr",
+						{},
+						el("td", {}, n.service),
+						el("td", {}, dateTime.format(n.firstSeen)),
+						el("td", {}, n.resolvedAt ? dateTime.format(n.resolvedAt) : "aktiv"),
+						el("td", {}, duration((n.resolvedAt ?? Date.now()) - n.firstSeen)),
+						el("td", {}, n.description),
+					),
+				)
+			: [el("tr", {}, el("td", { colspan: "5", class: "muted" }, "Seit Beginn der Beobachtung keine bundesweite Störung gemeldet."))]),
+	);
 }
 
 // --- Statistics -----------------------------------------------------------

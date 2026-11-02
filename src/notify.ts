@@ -6,6 +6,8 @@ export interface FaultEvent {
 	line: LineRow;
 	fault: {
 		key: string;
+		/** Lower-case noun for the notification title; defaults to "Flächenstörung". */
+		title?: string;
 		text: string;
 		firstSeen: number;
 		resolvedAt: number | null;
@@ -38,9 +40,10 @@ export function formatDuration(ms: number): string {
 
 function describe(event: FaultEvent): { title: string; body: string } {
 	const { fault } = event;
-	if (event.type === "opened") return { title: "Neue Flächenstörung", body: fault.text };
+	const label = fault.title ?? "Flächenstörung";
+	if (event.type === "opened") return { title: `Neue ${label}`, body: fault.text };
 	return {
-		title: "Flächenstörung behoben",
+		title: `${label[0].toUpperCase()}${label.slice(1)} behoben`,
 		body: `Bekannt seit ${dateFormat.format(fault.firstSeen)}, Dauer ca. ${formatDuration(fault.resolvedAt! - fault.firstSeen)}`,
 	};
 }

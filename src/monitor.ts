@@ -1,3 +1,4 @@
+import { notifyNational, syncNational } from "./national.ts";
 import { notify, type FaultEvent } from "./notify.ts";
 import { checkAreaOutage, type AreaCheck } from "./telekom.ts";
 
@@ -149,7 +150,19 @@ export async function runMonitor(env: Env, now = Date.now()): Promise<void> {
 	await env.DB.prepare("DELETE FROM subscriptions WHERE confirmed_at IS NULL AND created_at < ?")
 		.bind(now - UNCONFIRMED_TTL_MS)
 		.run();
+	await Promise.all([checkLines(env, now), syncNationalIncidents(env, now)]);
+}
 
+async function syncNationalIncidents(env: Env, now: number): Promise<void> {
+	try {
+		const events = await syncNational(env, now);
+		if (events.length) await notifyNational(env, events);
+	} catch (err) {
+		console.error("national sync failed:", err);
+	}
+}
+
+async function checkLines(env: Env, now: number): Promise<void> {
 	// Oldest first, so lines beyond the per-run cap are picked up by the next run.
 	const { results: lines } = await env.DB.prepare(
 		`SELECT l.* FROM lines l

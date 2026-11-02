@@ -143,6 +143,10 @@ button.secondary {
 	margin: 0.75rem 0;
 }
 
+.fault.national {
+	border-color: var(--muted);
+}
+
 .fault h3 {
 	margin: 0;
 }

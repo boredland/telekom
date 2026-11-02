@@ -1,6 +1,7 @@
 import { Hono, type Context } from "hono";
 import { FRESH_MS, checkLine, lineId, runMonitor, type FaultRow, type LineRow } from "./monitor.ts";
 import { notify, sendConfirmationEmail } from "./notify.ts";
+import { nationalIncidents, publicNationalIncident } from "./national.ts";
 import { computeStats } from "./stats.ts";
 import { InvalidNumberError, UpstreamError, normalizeNumber } from "./telekom.ts";
 import { b64urlEncode, isAllowedEndpoint, isValidSubscription } from "./webpush.ts";
@@ -79,12 +80,24 @@ app.get("/lines/:id", async (c) => {
 		}
 	}
 
-	const { results: active } = await c.env.DB.prepare(
-		"SELECT * FROM faults WHERE line_id = ? AND resolved_at IS NULL ORDER BY first_seen DESC",
-	)
-		.bind(id)
-		.all<FaultRow>();
-	return c.json({ line: publicLine(line), checkedAt: line.last_checked_at, checkError, faults: active.map(publicFault) });
+	const [{ results: active }, national] = await Promise.all([
+		c.env.DB.prepare("SELECT * FROM faults WHERE line_id = ? AND resolved_at IS NULL ORDER BY first_seen DESC")
+			.bind(id)
+			.all<FaultRow>(),
+		nationalIncidents(c.env.DB, { activeOnly: true }),
+	]);
+	return c.json({
+		line: publicLine(line),
+		checkedAt: line.last_checked_at,
+		checkError,
+		faults: active.map(publicFault),
+		national: national.map(publicNationalIncident),
+	});
+});
+
+/** Nationwide disruptions from Telekom's overview, kept apart from the per-line statistics. */
+app.get("/national", async (c) => {
+	return c.json({ incidents: (await nationalIncidents(c.env.DB, { limit: HISTORY_LIMIT })).map(publicNationalIncident) });
 });
 
 app.get("/lines/:id/stats", async (c) => {
