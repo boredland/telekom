@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="de">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<title>Telekom Störungsmelder</title>
+		<meta name="description" content="Telekom-Flächenstörungen für einen Festnetz-Anschluss prüfen, Statistiken ansehen und per Push oder E-Mail benachrichtigt werden." />
+		<link rel="manifest" href="/manifest.webmanifest" />
+		<link rel="icon" href="/icon.svg" type="image/svg+xml" />
+		<meta name="theme-color" content="#e20074" />
+		<link rel="stylesheet" href="/style.css" />
+		<script type="module" src="/app.js"></script>
+	</head>
+	<body>
+		<header>
+			<h1>Telekom Störungsmelder</h1>
+			<p class="muted">Prüft den Informationsservice Flächenstörung von telekom.de für einen Festnetz-Anschluss, sammelt den Verlauf und benachrichtigt Dich.</p>
+		</header>
+
+		<main>
+			<div id="flash" class="flash" hidden></div>
+
+			<section id="search" class="card">
+				<h2>Festnetz-Anschluss</h2>
+				<form id="line-form" autocomplete="off">
+					<div class="inline">
+						<label>
+							Vorwahl
+							<input id="area-code" required inputmode="numeric" pattern="0[1-9][0-9]{1,4}" placeholder="z. B. 069" />
+						</label>
+						<label>
+							Rufnummer
+							<input id="number" required inputmode="numeric" placeholder="z. B. 12345678" />
+						</label>
+					</div>
+					<button type="submit">Prüfen</button>
+				</form>
+				<p class="muted small">Für Mobilfunk und MagentaZuhause Regio bietet die Telekom diese Auskunft nicht an.</p>
+			</section>
+
+			<section id="result" hidden>
+				<div class="card">
+					<div class="row">
+						<h2 id="line-label"></h2>
+						<button id="change-line" class="link">Anderer Anschluss</button>
+					</div>
+					<p id="status-meta" class="muted"></p>
+					<div id="status"></div>
+				</div>
+
+				<div class="card">
+					<h2>Benachrichtigungen</h2>
+					<p class="muted">Wenn die Telekom für diesen Anschluss eine Flächenstörung meldet und wenn sie behoben ist.</p>
+					<div class="subscribe">
+						<div>
+							<h3>Push</h3>
+							<button id="push-toggle">Push aktivieren</button>
+							<p id="push-state" class="muted small"></p>
+						</div>
+						<form id="email-form">
+							<h3>E-Mail</h3>
+							<div class="inline">
+								<input id="email" type="email" required placeholder="du@example.com" />
+								<button type="submit">Abonnieren</button>
+							</div>
+							<p id="email-state" class="muted small"></p>
+						</form>
+					</div>
+				</div>
+
+				<div class="card">
+					<h2>Statistik</h2>
+					<p id="stats-meta" class="muted"></p>
+					<div id="stats-windows" class="windows"></div>
+					<h3>Störungsminuten pro Tag (90 Tage)</h3>
+					<div id="stats-daily" class="chart"></div>
+					<div class="split">
+						<div>
+							<h3>Beginn nach Uhrzeit</h3>
+							<div id="stats-hour" class="bars"></div>
+						</div>
+						<div>
+							<h3>Beginn nach Wochentag</h3>
+							<div id="stats-weekday" class="bars"></div>
+						</div>
+					</div>
+					<h3>Verlauf</h3>
+					<table id="history"></table>
+				</div>
+			</section>
+		</main>
+
+		<footer class="muted small">
+			<p>
+				Inoffizielles Projekt, nicht mit der Telekom verbunden. Daten aus dem öffentlichen
+				<a href="https://www.telekom.de/hilfe/hilfe-bei-stoerungen/flaechenstoerung">Informationsservice Flächenstörung</a>;
+				Statistiken umfassen nur den Zeitraum, in dem der Anschluss hier beobachtet wird (alle 5 Minuten).
+			</p>
+			<p>
+				Keine Konten, kein Tracking. Gespeichert werden nur die abgefragten Rufnummern, ohne Bezug zu Dir, für die Statistik. Wenn
+				Du Benachrichtigungen abonnierst, kommt Deine E-Mail-Adresse bzw. der Push-Endpunkt Deines Browsers dazu. Abmelden löscht
+				beides sofort; unbestätigte E-Mail-Adressen werden nach 7 Tagen gelöscht.
+			</p>
+			<p><a href="https://github.com/boredland/telekom">Quellcode auf GitHub</a> (MIT-Lizenz)</p>
+		</footer>
+	</body>
+</html>

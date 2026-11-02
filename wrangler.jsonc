@@ -1,0 +1,69 @@
+{
+	"$schema": "node_modules/wrangler/config-schema.json",
+	"name": "telekom-stoerungen",
+	"account_id": "cd1e88db5a44de0f45317275cbcef879",
+	"main": "src/index.ts",
+	"compatibility_date": "2026-10-13",
+	"observability": {
+		"enabled": true
+	},
+	"routes": [
+		{
+			"pattern": "telekom.jonas-strassel.de",
+			"custom_domain": true
+		}
+	],
+	"assets": {
+		"directory": "./public",
+		"binding": "ASSETS",
+		"run_worker_first": [
+			"/api/*"
+		]
+	},
+	"triggers": {
+		"crons": [
+			"*/5 * * * *"
+		]
+	},
+	"d1_databases": [
+		{
+			"binding": "DB",
+			"database_name": "telekom-stoerungen",
+			"database_id": "224b801c-e18c-4acd-bc13-39ba6ef3c298",
+			"migrations_dir": "migrations"
+		}
+	],
+	"send_email": [
+		{
+			"name": "EMAIL",
+			"allowed_sender_addresses": [
+				"stoerungen@telekom.jonas-strassel.de"
+			]
+		}
+	],
+	"ratelimits": [
+		// Line checks hit telekom.de (solving a captcha each); per client IP.
+		{
+			"name": "LOOKUP_LIMITER",
+			"namespace_id": "4721",
+			"simple": {
+				"limit": 20,
+				"period": 60
+			}
+		},
+		// Subscription attempts may send confirmation mails; per client IP and per recipient.
+		{
+			"name": "SUBSCRIBE_LIMITER",
+			"namespace_id": "4722",
+			"simple": {
+				"limit": 5,
+				"period": 60
+			}
+		}
+	],
+	"vars": {
+		"APP_URL": "https://telekom.jonas-strassel.de",
+		"EMAIL_FROM": "stoerungen@telekom.jonas-strassel.de"
+	}
+	// Secrets: VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY (see `npm run vapid`).
+}
