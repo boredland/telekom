@@ -1,6 +1,6 @@
 # Telekom Störungsmelder
 
-Checks the [Telekom Flächenstörung](https://www.telekom.de/hilfe/hilfe-bei-stoerungen/flaechenstoerung) service for a landline number, records outage history for statistics, and notifies subscribers via Web Push (VAPID) or email. Telekom counterpart to [vodafone.jonas-strassel.de](https://vodafone.jonas-strassel.de).
+Checks the [Telekom Flächenstörung](https://www.telekom.de/hilfe/hilfe-bei-stoerungen/flaechenstoerung) service for a landline number, records outage history for statistics, and notifies subscribers via Web Push (VAPID) or email. Telekom counterpart to [vodafone.jonas-strassel.de](https://vodafone.jonas-strassel.de) ([source](https://github.com/boredland/vodafone)).
 
 Runs at <https://telekom.jonas-strassel.de> on Cloudflare Workers: static assets + Hono API, D1, Cron Triggers, Email Service, Rate Limiting.
 
